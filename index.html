@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TeraBox Downloader</title>
+    <title>Universal Media Downloader</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -23,6 +23,11 @@
             --text-primary: #f1f5f9;
             --text-secondary: #94a3b8;
             --border: #334155;
+            --terabox: #0066ff;
+            --youtube: #ff0000;
+            --tiktok: #00f2ea;
+            --facebook: #1877f2;
+            --instagram: #e4405f;
         }
 
         body {
@@ -33,7 +38,7 @@
         }
 
         .container {
-            max-width: 900px;
+            max-width: 1000px;
             margin: 0 auto;
             padding: 20px;
         }
@@ -67,6 +72,44 @@
             font-size: 0.85rem;
             margin-top: 10px;
         }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+
+        .tab-btn:hover {
+            background: var(--border);
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-color: var(--primary);
+        }
+
+        .tab-btn.terabox.active { background: linear-gradient(135deg, var(--terabox), #0044cc); }
+        .tab-btn.youtube.active { background: linear-gradient(135deg, var(--youtube), #cc0000); }
+        .tab-btn.tiktok.active { background: linear-gradient(135deg, var(--tiktok), #00c4bc); }
+        .tab-btn.facebook.active { background: linear-gradient(135deg, var(--facebook), #125dc4); }
+        .tab-btn.instagram.active { background: linear-gradient(135deg, var(--instagram), #c1354c); }
 
         /* Card */
         .card {
@@ -273,6 +316,30 @@
             gap: 10px;
         }
 
+        /* Quality buttons */
+        .quality-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .quality-btn {
+            padding: 6px 14px;
+            background: var(--primary);
+            color: white;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .quality-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
         /* Alert */
         .alert {
             padding: 15px 20px;
@@ -355,6 +422,14 @@
                 flex: 1;
                 justify-content: center;
             }
+
+            .tabs {
+                flex-direction: column;
+            }
+
+            .tab-btn {
+                justify-content: center;
+            }
         }
 
         /* Loading overlay */
@@ -407,6 +482,55 @@
             font-family: 'Courier New', monospace;
             color: var(--primary);
         }
+
+        /* Tab content */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Thumbnail */
+        .thumbnail-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .thumbnail {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 10px;
+            border: 2px solid var(--border);
+        }
+
+        /* Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .stat-item {
+            background: var(--bg-dark);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-item .value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .stat-item .label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 3px;
+        }
     </style>
 </head>
 <body>
@@ -419,77 +543,259 @@
 
     <div class="container">
         <header class="header">
-            <h1><i class="fas fa-cloud-download-alt"></i> TeraBox Downloader</h1>
-            <p>Download files from TeraBox with ease</p>
+            <h1><i class="fas fa-download"></i> Universal Media Downloader</h1>
+            <p>Download from TeraBox, YouTube, TikTok, Facebook & Instagram</p>
             <span class="badge"><i class="fas fa-bolt"></i> Powered by Sonzaix API</span>
         </header>
 
-        <div class="card">
-            <h2 class="card-title"><i class="fas fa-link"></i> Enter TeraBox URL</h2>
-            
-            <div class="info-box">
-                <p>
-                    <i class="fas fa-info-circle"></i> <strong>Tip:</strong> Paste your TeraBox sharing link below. 
-                    If the link is password-protected, include <code>&pwd=xxx</code> at the end of the URL 
-                    or enter the password in the separate field.
-                </p>
-            </div>
-
-            <div id="alertContainer"></div>
-
-            <form id="downloadForm">
-                <div class="form-group">
-                    <label for="url">TeraBox URL</label>
-                    <input 
-                        type="text" 
-                        id="url" 
-                        class="form-control" 
-                        placeholder="https://www.terabox.app/indonesian/sharing/init?surl=xxx&pwd=xxx"
-                        required
-                    >
-                </div>
-
-                <div class="form-group">
-                    <label for="password">Password (optional)</label>
-                    <input 
-                        type="text" 
-                        id="password" 
-                        class="form-control" 
-                        placeholder="Leave empty if URL contains &pwd= or no password"
-                    >
-                </div>
-
-                <button type="submit" class="btn btn-primary" id="fetchBtn">
-                    <i class="fas fa-search"></i> Fetch Files
-                </button>
-            </form>
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-btn terabox active" data-tab="terabox">
+                <i class="fas fa-cloud"></i> TeraBox
+            </button>
+            <button class="tab-btn youtube" data-tab="youtube">
+                <i class="fab fa-youtube"></i> YouTube
+            </button>
+            <button class="tab-btn tiktok" data-tab="tiktok">
+                <i class="fab fa-tiktok"></i> TikTok
+            </button>
+            <button class="tab-btn facebook" data-tab="facebook">
+                <i class="fab fa-facebook"></i> Facebook
+            </button>
+            <button class="tab-btn instagram" data-tab="instagram">
+                <i class="fab fa-instagram"></i> Instagram
+            </button>
         </div>
 
-        <div class="card results" id="resultsCard">
-            <h2 class="card-title"><i class="fas fa-folder-open"></i> Available Files</h2>
-            
-            <div class="file-info" id="fileInfo">
-                <div class="file-info-grid">
-                    <div class="info-item">
-                        <div class="value" id="totalFiles">0</div>
-                        <div class="label">Total Files</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="value" id="isPrivate">-</div>
-                        <div class="label">Private</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="value" id="source">TeraBox</div>
-                        <div class="label">Source</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="value" id="status">-</div>
-                        <div class="label">Status</div>
-                    </div>
+        <!-- TeraBox Tab -->
+        <div class="tab-content active" id="terabox-tab">
+            <div class="card">
+                <h2 class="card-title"><i class="fas fa-cloud-download-alt"></i> TeraBox Downloader</h2>
+                
+                <div class="info-box">
+                    <p>
+                        <i class="fas fa-info-circle"></i> Paste your TeraBox sharing link. 
+                        Include <code>&pwd=xxx</code> for password-protected links.
+                    </p>
                 </div>
+
+                <div id="terabox-alert"></div>
+
+                <form class="download-form" data-type="terabox">
+                    <div class="form-group">
+                        <label for="terabox-url">TeraBox URL</label>
+                        <input 
+                            type="text" 
+                            id="terabox-url" 
+                            class="form-control" 
+                            placeholder="https://www.terabox.app/indonesian/sharing/init?surl=xxx&pwd=xxx"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="terabox-password">Password (optional)</label>
+                        <input 
+                            type="text" 
+                            id="terabox-password" 
+                            class="form-control" 
+                            placeholder="Leave empty if URL contains &pwd="
+                        >
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search"></i> Fetch Files
+                    </button>
+                </form>
             </div>
 
-            <ul class="file-list" id="fileList"></ul>
+            <div class="card results" id="terabox-results">
+                <h2 class="card-title"><i class="fas fa-folder-open"></i> Available Files</h2>
+                
+                <div class="file-info" id="terabox-info">
+                    <div class="file-info-grid" id="terabox-info-grid"></div>
+                </div>
+
+                <ul class="file-list" id="terabox-list"></ul>
+            </div>
+        </div>
+
+        <!-- YouTube Tab -->
+        <div class="tab-content" id="youtube-tab">
+            <div class="card">
+                <h2 class="card-title"><i class="fab fa-youtube"></i> YouTube Downloader</h2>
+                
+                <div class="info-box">
+                    <p>
+                        <i class="fas fa-info-circle"></i> Download YouTube videos or audio (MP3).
+                        Paste any YouTube video URL.
+                    </p>
+                </div>
+
+                <div id="youtube-alert"></div>
+
+                <form class="download-form" data-type="youtube">
+                    <div class="form-group">
+                        <label for="youtube-url">YouTube URL</label>
+                        <input 
+                            type="text" 
+                            id="youtube-url" 
+                            class="form-control" 
+                            placeholder="https://www.youtube.com/watch?v=xxx"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label>Download Type</label>
+                        <div style="display: flex; gap: 10px;">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="radio" name="youtube-type" value="video" checked>
+                                <i class="fas fa-video"></i> Video
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="radio" name="youtube-type" value="music">
+                                <i class="fas fa-music"></i> Audio (MP3)
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search"></i> Fetch
+                    </button>
+                </form>
+            </div>
+
+            <div class="card results" id="youtube-results">
+                <h2 class="card-title"><i class="fas fa-download"></i> Download Options</h2>
+                
+                <div class="thumbnail-container" id="youtube-thumbnail"></div>
+                <div class="file-info" id="youtube-info"></div>
+                <div class="quality-options" id="youtube-quality"></div>
+            </div>
+        </div>
+
+        <!-- TikTok Tab -->
+        <div class="tab-content" id="tiktok-tab">
+            <div class="card">
+                <h2 class="card-title"><i class="fab fa-tiktok"></i> TikTok Downloader</h2>
+                
+                <div class="info-box">
+                    <p>
+                        <i class="fas fa-info-circle"></i> Download TikTok videos without watermark.
+                        Paste any TikTok video URL.
+                    </p>
+                </div>
+
+                <div id="tiktok-alert"></div>
+
+                <form class="download-form" data-type="tiktok">
+                    <div class="form-group">
+                        <label for="tiktok-url">TikTok URL</label>
+                        <input 
+                            type="text" 
+                            id="tiktok-url" 
+                            class="form-control" 
+                            placeholder="https://vt.tiktok.com/xxx or https://www.tiktok.com/@xxx/video/xxx"
+                            required
+                        >
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search"></i> Fetch
+                    </button>
+                </form>
+            </div>
+
+            <div class="card results" id="tiktok-results">
+                <h2 class="card-title"><i class="fas fa-download"></i> Download Options</h2>
+                
+                <div class="thumbnail-container" id="tiktok-thumbnail"></div>
+                <div class="file-info" id="tiktok-info"></div>
+                <div class="file-list" id="tiktok-list"></div>
+            </div>
+        </div>
+
+        <!-- Facebook Tab -->
+        <div class="tab-content" id="facebook-tab">
+            <div class="card">
+                <h2 class="card-title"><i class="fab fa-facebook"></i> Facebook Downloader</h2>
+                
+                <div class="info-box">
+                    <p>
+                        <i class="fas fa-info-circle"></i> Download Facebook videos in HD or SD quality.
+                        Paste any Facebook video URL.
+                    </p>
+                </div>
+
+                <div id="facebook-alert"></div>
+
+                <form class="download-form" data-type="facebook">
+                    <div class="form-group">
+                        <label for="facebook-url">Facebook URL</label>
+                        <input 
+                            type="text" 
+                            id="facebook-url" 
+                            class="form-control" 
+                            placeholder="https://www.facebook.com/share/r/xxx"
+                            required
+                        >
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search"></i> Fetch
+                    </button>
+                </form>
+            </div>
+
+            <div class="card results" id="facebook-results">
+                <h2 class="card-title"><i class="fas fa-download"></i> Download Options</h2>
+                
+                <div class="thumbnail-container" id="facebook-thumbnail"></div>
+                <div class="file-info" id="facebook-info"></div>
+                <div class="quality-options" id="facebook-quality"></div>
+            </div>
+        </div>
+
+        <!-- Instagram Tab -->
+        <div class="tab-content" id="instagram-tab">
+            <div class="card">
+                <h2 class="card-title"><i class="fab fa-instagram"></i> Instagram Downloader</h2>
+                
+                <div class="info-box">
+                    <p>
+                        <i class="fas fa-info-circle"></i> Download Instagram Reels and videos.
+                        Paste any Instagram Reel or video URL.
+                    </p>
+                </div>
+
+                <div id="instagram-alert"></div>
+
+                <form class="download-form" data-type="instagram">
+                    <div class="form-group">
+                        <label for="instagram-url">Instagram URL</label>
+                        <input 
+                            type="text" 
+                            id="instagram-url" 
+                            class="form-control" 
+                            placeholder="https://www.instagram.com/reels/xxx"
+                            required
+                        >
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search"></i> Fetch
+                    </button>
+                </form>
+            </div>
+
+            <div class="card results" id="instagram-results">
+                <h2 class="card-title"><i class="fas fa-download"></i> Download Options</h2>
+                
+                <div class="thumbnail-container" id="instagram-thumbnail"></div>
+                <div class="file-info" id="instagram-info"></div>
+                <div class="quality-options" id="instagram-quality"></div>
+            </div>
         </div>
 
         <footer class="footer">
@@ -499,25 +805,38 @@
     </div>
 
     <script>
-        const API_URL = 'https://api.sonzaix.indevs.in/terabox';
+        // API Endpoints
+        const API_ENDPOINTS = {
+            terabox: 'https://api.sonzaix.indevs.in/terabox',
+            youtube_video: 'https://api.sonzaix.indevs.in/youtube/video',
+            youtube_music: 'https://api.sonzaix.indevs.in/youtube/music',
+            tiktok: 'https://api.sonzaix.indevs.in/sosmed/tiktok',
+            facebook: 'https://api.sonzaix.indevs.in/sosmed/facebook',
+            instagram: 'https://api.sonzaix.indevs.in/sosmed/instagram'
+        };
 
-        const form = document.getElementById('downloadForm');
-        const resultsCard = document.getElementById('resultsCard');
-        const fileList = document.getElementById('fileList');
-        const loadingOverlay = document.getElementById('loadingOverlay');
-        const loadingText = document.getElementById('loadingText');
+        // Tab switching
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                btn.classList.add('active');
+                document.getElementById(`${btn.dataset.tab}-tab`).classList.add('active');
+            });
+        });
 
         function showLoading(text = 'Processing...') {
-            loadingText.textContent = text;
-            loadingOverlay.classList.add('show');
+            document.getElementById('loadingText').textContent = text;
+            document.getElementById('loadingOverlay').classList.add('show');
         }
 
         function hideLoading() {
-            loadingOverlay.classList.remove('show');
+            document.getElementById('loadingOverlay').classList.remove('show');
         }
 
-        function showAlert(message, type = 'info') {
-            const container = document.getElementById('alertContainer');
+        function showAlert(containerId, message, type = 'info') {
+            const container = document.getElementById(containerId);
             const icons = {
                 error: 'fa-exclamation-circle',
                 success: 'fa-check-circle',
@@ -533,11 +852,22 @@
         }
 
         function formatSize(bytes) {
+            if (!bytes) return '';
             const mb = bytes / (1024 * 1024);
             if (mb >= 1000) {
                 return (mb / 1024).toFixed(2) + ' GB';
             }
             return mb.toFixed(2) + ' MB';
+        }
+
+        function formatNumber(num) {
+            if (num >= 1000000) {
+                return (num / 1000000).toFixed(1) + 'M';
+            }
+            if (num >= 1000) {
+                return (num / 1000).toFixed(1) + 'K';
+            }
+            return num.toString();
         }
 
         function getFileIcon(filename) {
@@ -576,23 +906,87 @@
             }
         }
 
-        function displayResults(data) {
-            document.getElementById('totalFiles').textContent = data.total_files || 0;
-            document.getElementById('isPrivate').textContent = data.is_private ? 'Yes' : 'No';
-            document.getElementById('source').textContent = data.source || 'TeraBox';
-            document.getElementById('status').textContent = data.status || '-';
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
 
-            fileList.innerHTML = '';
+        // TeraBox Handler
+        document.querySelector('[data-type="terabox"]').addEventListener('submit', async (e) => {
+            e.preventDefault();
             
-            if (!data.files || data.files.length === 0) {
-                showAlert('No files found', 'error');
+            let url = document.getElementById('terabox-url').value.trim();
+            let password = document.getElementById('terabox-password').value.trim();
+
+            if (!url) {
+                showAlert('terabox-alert', 'Please enter a URL', 'error');
                 return;
             }
 
-            data.files.forEach((file, index) => {
-                // Decode the download link if it's base64
+            if (url.includes('&pwd=')) {
+                const parts = url.split('&pwd=');
+                url = parts[0].trim();
+                if (!password) password = parts[1] || '';
+            }
+
+            showLoading('Fetching file information...');
+
+            try {
+                const encodedUrl = encodeURIComponent(url);
+                let apiUrl = `${API_ENDPOINTS.terabox}?url=${encodedUrl}`;
+                if (password) apiUrl += `&pwd=${encodeURIComponent(password)}`;
+
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+
+                if (data.status !== 'success') {
+                    showAlert('terabox-alert', data.message || 'Failed to fetch files', 'error');
+                    document.getElementById('terabox-results').classList.remove('show');
+                    return;
+                }
+
+                showAlert('terabox-alert', 'Files fetched successfully!', 'success');
+                displayTeraBoxResults(data);
+            } catch (error) {
+                showAlert('terabox-alert', `Error: ${error.message}`, 'error');
+            } finally {
+                hideLoading();
+            }
+        });
+
+        function displayTeraBoxResults(data) {
+            const infoGrid = document.getElementById('terabox-info-grid');
+            infoGrid.innerHTML = `
+                <div class="info-item">
+                    <div class="value">${data.total_files || 0}</div>
+                    <div class="label">Total Files</div>
+                </div>
+                <div class="info-item">
+                    <div class="value">${data.is_private ? 'Yes' : 'No'}</div>
+                    <div class="label">Private</div>
+                </div>
+                <div class="info-item">
+                    <div class="value">${data.source || 'TeraBox'}</div>
+                    <div class="label">Source</div>
+                </div>
+                <div class="info-item">
+                    <div class="value">${data.status || '-'}</div>
+                    <div class="label">Status</div>
+                </div>
+            `;
+
+            const list = document.getElementById('terabox-list');
+            list.innerHTML = '';
+            
+            if (!data.files || data.files.length === 0) {
+                showAlert('terabox-alert', 'No files found', 'error');
+                return;
+            }
+
+            data.files.forEach((file) => {
                 let downloadLink = file.download_link || '';
-                if (downloadLink.startsWith('aHR0cHM') || downloadLink.startsWith('http')) {
+                if (downloadLink.startsWith('aHR0cHM')) {
                     downloadLink = decodeBase64Url(downloadLink);
                 }
 
@@ -609,7 +1003,7 @@
                         </div>
                     </div>
                     <div class="file-actions">
-                        <a href="${downloadLink}" target="_blank" class="btn btn-success btn-sm" download>
+                        <a href="${downloadLink}" target="_blank" class="btn btn-success btn-sm">
                             <i class="fas fa-download"></i> Download
                         </a>
                         <a href="${downloadLink}" target="_blank" class="btn btn-outline btn-sm">
@@ -617,72 +1011,372 @@
                         </a>
                     </div>
                 `;
-                fileList.appendChild(li);
+                list.appendChild(li);
             });
 
-            resultsCard.classList.add('show');
+            document.getElementById('terabox-results').classList.add('show');
         }
 
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        form.addEventListener('submit', async (e) => {
+        // YouTube Handler
+        document.querySelector('[data-type="youtube"]').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            let url = document.getElementById('url').value.trim();
-            let password = document.getElementById('password').value.trim();
+            const url = document.getElementById('youtube-url').value.trim();
+            const type = document.querySelector('input[name="youtube-type"]:checked').value;
 
             if (!url) {
-                showAlert('Please enter a URL', 'error');
+                showAlert('youtube-alert', 'Please enter a URL', 'error');
                 return;
             }
 
-            // Extract URL and password from input
-            if (url.includes('&pwd=')) {
-                const parts = url.split('&pwd=');
-                url = parts[0].trim();
-                if (!password) {
-                    password = parts[1] || '';
-                }
-            }
-
-            showLoading('Fetching file information...');
+            showLoading('Fetching video information...');
 
             try {
-                // Build API URL
-                const encodedUrl = encodeURIComponent(url);
-                let apiUrl = `${API_URL}?url=${encodedUrl}`;
-                if (password) {
-                    apiUrl += `&pwd=${encodeURIComponent(password)}`;
-                }
+                const endpoint = type === 'video' ? API_ENDPOINTS.youtube_video : API_ENDPOINTS.youtube_music;
+                const apiUrl = `${endpoint}?url=${encodeURIComponent(url)}`;
 
-                // Use CORS proxy if needed
-                const response = await fetch(apiUrl, {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json'
-                    }
-                });
-
+                const response = await fetch(apiUrl);
                 const data = await response.json();
 
-                if (data.status !== 'success') {
-                    showAlert(data.message || 'Failed to fetch files', 'error');
-                    resultsCard.classList.remove('show');
+                if (!data.filename) {
+                    showAlert('youtube-alert', 'Failed to fetch video. Make sure the URL is valid.', 'error');
+                    document.getElementById('youtube-results').classList.remove('show');
                     return;
                 }
 
-                showAlert('Files fetched successfully!', 'success');
-                displayResults(data);
+                showAlert('youtube-alert', 'Video fetched successfully!', 'success');
+                displayYouTubeResults(data, type);
             } catch (error) {
-                showAlert(`Error: ${error.message}. The API may have CORS restrictions. Try using a CORS proxy or run the Flask version locally.`, 'error');
+                showAlert('youtube-alert', `Error: ${error.message}`, 'error');
             } finally {
                 hideLoading();
             }
         });
+
+        function displayYouTubeResults(data, type) {
+            const info = document.getElementById('youtube-info');
+            info.innerHTML = `
+                <div style="text-align: center; margin-bottom: 15px;">
+                    <h3 style="color: var(--text-primary);">${escapeHtml(data.filename)}</h3>
+                </div>
+            `;
+
+            const quality = document.getElementById('youtube-quality');
+            quality.innerHTML = '';
+
+            const links = data.download_link;
+            const qualities = Object.keys(links);
+
+            qualities.forEach(q => {
+                const btn = document.createElement('a');
+                btn.href = links[q];
+                btn.target = '_blank';
+                btn.className = 'quality-btn';
+                btn.innerHTML = `<i class="fas fa-download"></i> ${type === 'video' ? q : q}`;
+                quality.appendChild(btn);
+            });
+
+            document.getElementById('youtube-results').classList.add('show');
+        }
+
+        // TikTok Handler
+        document.querySelector('[data-type="tiktok"]').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const url = document.getElementById('tiktok-url').value.trim();
+
+            if (!url) {
+                showAlert('tiktok-alert', 'Please enter a URL', 'error');
+                return;
+            }
+
+            showLoading('Fetching video information...');
+
+            try {
+                const apiUrl = `${API_ENDPOINTS.tiktok}?url=${encodeURIComponent(url)}`;
+
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+
+                if (data.status !== 'success') {
+                    showAlert('tiktok-alert', 'Failed to fetch video. Make sure the URL is valid.', 'error');
+                    document.getElementById('tiktok-results').classList.remove('show');
+                    return;
+                }
+
+                showAlert('tiktok-alert', 'Video fetched successfully!', 'success');
+                displayTikTokResults(data.data);
+            } catch (error) {
+                showAlert('tiktok-alert', `Error: ${error.message}`, 'error');
+            } finally {
+                hideLoading();
+            }
+        });
+
+        function displayTikTokResults(data) {
+            const thumbnail = document.getElementById('tiktok-thumbnail');
+            if (data.cover) {
+                thumbnail.innerHTML = `<img src="${data.cover}" alt="Cover" class="thumbnail">`;
+            } else {
+                thumbnail.innerHTML = '';
+            }
+
+            const info = document.getElementById('tiktok-info');
+            info.innerHTML = `
+                <div style="margin-bottom: 15px;">
+                    <h3 style="color: var(--text-primary);">${escapeHtml(data.title || 'TikTok Video')}</h3>
+                    <p style="color: var(--text-secondary); margin-top: 5px;">
+                        <i class="fas fa-user"></i> ${data.author?.nickname || 'Unknown'}
+                        (${data.author?.unique_id || ''})
+                    </p>
+                    <p style="color: var(--text-secondary); margin-top: 5px;">
+                        <i class="fas fa-clock"></i> Duration: ${data.duration}s
+                    </p>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="value">${formatNumber(data.play_count)}</div>
+                        <div class="label">Views</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="value">${formatNumber(data.digg_count)}</div>
+                        <div class="label">Likes</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="value">${formatNumber(data.comment_count)}</div>
+                        <div class="label">Comments</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="value">${formatNumber(data.share_count)}</div>
+                        <div class="label">Shares</div>
+                    </div>
+                </div>
+            `;
+
+            const list = document.getElementById('tiktok-list');
+            list.innerHTML = `
+                <li class="file-item">
+                    <div class="file-info-left">
+                        <div class="file-icon" style="background: linear-gradient(135deg, #00f2ea, #ff0050);">
+                            <i class="fab fa-tiktok"></i>
+                        </div>
+                        <div class="file-details">
+                            <div class="file-name">HD Quality (No Watermark)</div>
+                            <div class="file-meta">${formatSize(data.hd_size)}</div>
+                        </div>
+                    </div>
+                    <div class="file-actions">
+                        <a href="${data.hdplay}" target="_blank" class="btn btn-success btn-sm">
+                            <i class="fas fa-download"></i> Download HD
+                        </a>
+                    </div>
+                </li>
+                <li class="file-item">
+                    <div class="file-info-left">
+                        <div class="file-icon" style="background: linear-gradient(135deg, #00f2ea, #ff0050);">
+                            <i class="fab fa-tiktok"></i>
+                        </div>
+                        <div class="file-details">
+                            <div class="file-name">Standard Quality (No Watermark)</div>
+                            <div class="file-meta">${formatSize(data.size)}</div>
+                        </div>
+                    </div>
+                    <div class="file-actions">
+                        <a href="${data.play}" target="_blank" class="btn btn-success btn-sm">
+                            <i class="fas fa-download"></i> Download
+                        </a>
+                    </div>
+                </li>
+                <li class="file-item">
+                    <div class="file-info-left">
+                        <div class="file-icon" style="background: linear-gradient(135deg, #00f2ea, #ff0050);">
+                            <i class="fab fa-tiktok"></i>
+                        </div>
+                        <div class="file-details">
+                            <div class="file-name">With Watermark</div>
+                            <div class="file-meta">${formatSize(data.wm_size)}</div>
+                        </div>
+                    </div>
+                    <div class="file-actions">
+                        <a href="${data.wmplay}" target="_blank" class="btn btn-outline btn-sm">
+                            <i class="fas fa-download"></i> Download WM
+                        </a>
+                    </div>
+                </li>
+                <li class="file-item">
+                    <div class="file-info-left">
+                        <div class="file-icon" style="background: linear-gradient(135deg, #ff0050, #00f2ea);">
+                            <i class="fas fa-music"></i>
+                        </div>
+                        <div class="file-details">
+                            <div class="file-name">${data.music_info?.title || 'Audio'}</div>
+                            <div class="file-meta">Original Sound</div>
+                        </div>
+                    </div>
+                    <div class="file-actions">
+                        <a href="${data.music}" target="_blank" class="btn btn-outline btn-sm">
+                            <i class="fas fa-download"></i> Download Audio
+                        </a>
+                    </div>
+                </li>
+            `;
+
+            document.getElementById('tiktok-results').classList.add('show');
+        }
+
+        // Facebook Handler
+        document.querySelector('[data-type="facebook"]').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const url = document.getElementById('facebook-url').value.trim();
+
+            if (!url) {
+                showAlert('facebook-alert', 'Please enter a URL', 'error');
+                return;
+            }
+
+            showLoading('Fetching video information...');
+
+            try {
+                const apiUrl = `${API_ENDPOINTS.facebook}?url=${encodeURIComponent(url)}`;
+
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+
+                if (data.status !== 'success') {
+                    showAlert('facebook-alert', 'Failed to fetch video. Make sure the URL is valid.', 'error');
+                    document.getElementById('facebook-results').classList.remove('show');
+                    return;
+                }
+
+                showAlert('facebook-alert', 'Video fetched successfully!', 'success');
+                displayFacebookResults(data);
+            } catch (error) {
+                showAlert('facebook-alert', `Error: ${error.message}`, 'error');
+            } finally {
+                hideLoading();
+            }
+        });
+
+        function displayFacebookResults(data) {
+            const thumbnail = document.getElementById('facebook-thumbnail');
+            if (data.thumbnail) {
+                thumbnail.innerHTML = `<img src="${data.thumbnail}" alt="Thumbnail" class="thumbnail">`;
+            } else {
+                thumbnail.innerHTML = '';
+            }
+
+            const info = document.getElementById('facebook-info');
+            info.innerHTML = `
+                <div style="margin-bottom: 15px;">
+                    <h3 style="color: var(--text-primary);">${escapeHtml(data.description || 'Facebook Video')}</h3>
+                    ${data.username ? `<p style="color: var(--text-secondary); margin-top: 5px;"><i class="fas fa-user"></i> ${data.username}</p>` : ''}
+                    ${data.stats?.durasi ? `<p style="color: var(--text-secondary); margin-top: 5px;"><i class="fas fa-clock"></i> Duration: ${data.stats.durasi}</p>` : ''}
+                </div>
+            `;
+
+            const quality = document.getElementById('facebook-quality');
+            quality.innerHTML = '';
+
+            if (data.video_url_hd) {
+                const hdBtn = document.createElement('a');
+                hdBtn.href = data.video_url_hd;
+                hdBtn.target = '_blank';
+                hdBtn.className = 'quality-btn';
+                hdBtn.innerHTML = '<i class="fas fa-download"></i> HD Quality';
+                quality.appendChild(hdBtn);
+            }
+
+            if (data.video_url_sd) {
+                const sdBtn = document.createElement('a');
+                sdBtn.href = data.video_url_sd;
+                sdBtn.target = '_blank';
+                sdBtn.className = 'quality-btn';
+                sdBtn.innerHTML = '<i class="fas fa-download"></i> SD Quality';
+                quality.appendChild(sdBtn);
+            }
+
+            document.getElementById('facebook-results').classList.add('show');
+        }
+
+        // Instagram Handler
+        document.querySelector('[data-type="instagram"]').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const url = document.getElementById('instagram-url').value.trim();
+
+            if (!url) {
+                showAlert('instagram-alert', 'Please enter a URL', 'error');
+                return;
+            }
+
+            showLoading('Fetching video information...');
+
+            try {
+                const apiUrl = `${API_ENDPOINTS.instagram}?url=${encodeURIComponent(url)}`;
+
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+
+                if (data.status !== 'success') {
+                    showAlert('instagram-alert', 'Failed to fetch video. Make sure the URL is valid.', 'error');
+                    document.getElementById('instagram-results').classList.remove('show');
+                    return;
+                }
+
+                showAlert('instagram-alert', 'Video fetched successfully!', 'success');
+                displayInstagramResults(data);
+            } catch (error) {
+                showAlert('instagram-alert', `Error: ${error.message}`, 'error');
+            } finally {
+                hideLoading();
+            }
+        });
+
+        function displayInstagramResults(data) {
+            const thumbnail = document.getElementById('instagram-thumbnail');
+            if (data.thumbnail) {
+                thumbnail.innerHTML = `<img src="${data.thumbnail}" alt="Thumbnail" class="thumbnail">`;
+            } else {
+                thumbnail.innerHTML = '';
+            }
+
+            const info = document.getElementById('instagram-info');
+            info.innerHTML = `
+                <div style="margin-bottom: 15px;">
+                    <h3 style="color: var(--text-primary);">${escapeHtml(data.description || 'Instagram Video')}</h3>
+                    <p style="color: var(--text-secondary); margin-top: 5px;">
+                        <i class="fas fa-user"></i> ${data.nickname || data.username || 'Unknown'}
+                    </p>
+                </div>
+                ${data.stats ? `
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="value">${formatNumber(data.stats.likes)}</div>
+                        <div class="label">Likes</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="value">${formatNumber(data.stats.comments)}</div>
+                        <div class="label">Comments</div>
+                    </div>
+                </div>
+                ` : ''}
+            `;
+
+            const quality = document.getElementById('instagram-quality');
+            quality.innerHTML = '';
+
+            if (data.video_url) {
+                const videoBtn = document.createElement('a');
+                videoBtn.href = data.video_url;
+                videoBtn.target = '_blank';
+                videoBtn.className = 'quality-btn';
+                videoBtn.innerHTML = '<i class="fas fa-download"></i> Download Video';
+                quality.appendChild(videoBtn);
+            }
+
+            document.getElementById('instagram-results').classList.add('show');
+        }
     </script>
 </body>
 </html>

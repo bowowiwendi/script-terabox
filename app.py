@@ -1,22 +1,28 @@
 #!/usr/bin/env python3
 """
-TeraBox Downloader - Web Version
-Flask-based web interface for downloading files from TeraBox
+Universal Media Downloader - Web Version
+Flask-based web interface for downloading from TeraBox, YouTube, TikTok, Facebook, Instagram
 """
 
-from flask import Flask, render_template, request, jsonify, send_file, Response
+from flask import Flask, render_template, request, jsonify, Response
 import requests
 import json
 import os
 import base64
 from urllib.parse import quote
-import io
 import re
 
 
 app = Flask(__name__)
 
-API_URL = "https://api.sonzaix.indevs.in/terabox"
+API_ENDPOINTS = {
+    'terabox': 'https://api.sonzaix.indevs.in/terabox',
+    'youtube_video': 'https://api.sonzaix.indevs.in/youtube/video',
+    'youtube_music': 'https://api.sonzaix.indevs.in/youtube/music',
+    'tiktok': 'https://api.sonzaix.indevs.in/sosmed/tiktok',
+    'facebook': 'https://api.sonzaix.indevs.in/sosmed/facebook',
+    'instagram': 'https://api.sonzaix.indevs.in/sosmed/instagram'
+}
 
 
 def extract_url_from_input(user_input: str) -> str:
@@ -65,35 +71,47 @@ def index():
 
 @app.route('/api/fetch', methods=['POST'])
 def fetch_info():
-    """Fetch file information from TeraBox"""
+    """Fetch file information from various platforms"""
     data = request.get_json()
     
-    if not data or 'url' not in data:
-        return jsonify({'status': 'error', 'message': 'URL is required'}), 400
+    if not data or 'url' not in data or 'platform' not in data:
+        return jsonify({'status': 'error', 'message': 'URL and platform are required'}), 400
     
     url = data['url'].strip()
     password = data.get('password', '').strip()
+    platform = data['platform'].strip()
     
     if not url:
         return jsonify({'status': 'error', 'message': 'URL cannot be empty'}), 400
     
-    # Extract URL and password
-    terabox_url = extract_url_from_input(url)
-    terabox_pwd = extract_password_from_input(url) or password
-    
-    # Fetch from API
-    encoded_url = quote(terabox_url, safe='')
-    api_endpoint = f"{API_URL}?url={encoded_url}"
-    if terabox_pwd:
-        api_endpoint += f"&pwd={terabox_pwd}"
+    # Select API endpoint based on platform
+    if platform == 'terabox':
+        terabox_url = extract_url_from_input(url)
+        terabox_pwd = extract_password_from_input(url) or password
+        encoded_url = quote(terabox_url, safe='')
+        api_endpoint = f"{API_ENDPOINTS['terabox']}?url={encoded_url}"
+        if terabox_pwd:
+            api_endpoint += f"&pwd={terabox_pwd}"
+    elif platform == 'youtube_video':
+        api_endpoint = f"{API_ENDPOINTS['youtube_video']}?url={quote(url, safe='')}"
+    elif platform == 'youtube_music':
+        api_endpoint = f"{API_ENDPOINTS['youtube_music']}?url={quote(url, safe='')}"
+    elif platform == 'tiktok':
+        api_endpoint = f"{API_ENDPOINTS['tiktok']}?url={quote(url, safe='')}"
+    elif platform == 'facebook':
+        api_endpoint = f"{API_ENDPOINTS['facebook']}?url={quote(url, safe='')}"
+    elif platform == 'instagram':
+        api_endpoint = f"{API_ENDPOINTS['instagram']}?url={quote(url, safe='')}"
+    else:
+        return jsonify({'status': 'error', 'message': 'Invalid platform'}), 400
     
     try:
         response = requests.get(api_endpoint, timeout=30)
         response.raise_for_status()
         result = response.json()
         
-        if result.get('status') == 'success':
-            # Decode download links for frontend
+        # Decode download links for terabox
+        if platform == 'terabox' and result.get('status') == 'success':
             for file in result.get('files', []):
                 if 'download_link' in file:
                     file['decoded_link'] = decode_download_link(file['download_link'])

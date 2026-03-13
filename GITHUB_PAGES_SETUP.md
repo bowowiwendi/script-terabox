@@ -12,7 +12,7 @@ git init
 git add .
 
 # Commit pertama
-git commit -m "Initial commit - TeraBox Downloader"
+git commit -m "Initial commit - Universal Media Downloader"
 
 # Buat branch main
 git branch -M main
@@ -81,9 +81,10 @@ python app.py
 - Railway: [railway.app](https://railway.app)
 
 **Solusi 3: Gunakan CORS Proxy** (untuk development)
-Edit `index.html`, ganti fetch URL dengan CORS proxy:
+Edit `index.html`, tambahkan CORS proxy di awal script:
 ```javascript
 const CORS_PROXY = 'https://corsproxy.io/?';
+// Lalu gunakan untuk setiap fetch
 const apiUrl = CORS_PROXY + encodeURIComponent(`${API_URL}?url=...`);
 ```
 
@@ -93,28 +94,40 @@ const apiUrl = CORS_PROXY + encodeURIComponent(`${API_URL}?url=...`);
 
 ```
 script-terabox/
-├── index.html              # Static web (GitHub Pages)
+├── index.html              # Static web (GitHub Pages) - ALL IN ONE
 ├── .github/
 │   └── workflows/
 │       ├── pages.yml       # Auto-deploy GitHub Pages
 │       └── deploy.yml      # Deploy ke Render
 ├── app.py                  # Flask server (opsional)
 ├── templates/
-│   └── index.html          # Flask UI (sama dengan index.html)
+│   └── index.html          # Flask UI (backup)
 ├── requirements.txt        # Python dependencies
-├── terabox_downloader.py   # CLI version
-└── README.md
+├── terabox_downloader.py   # CLI version (TeraBox only)
+├── README.md               # Dokumentasi utama
+└── GITHUB_PAGES_SETUP.md   # Panduan deploy GitHub Pages
 ```
 
 ---
 
 ## 🎨 Fitur Web UI
 
+### Platform yang Didukung:
+- ✅ **TeraBox** - Download files dengan password support
+- ✅ **YouTube** - Video (144p-1080p) & Audio (128-320kbps)
+- ✅ **TikTok** - HD/SD tanpa watermark + audio
+- ✅ **Facebook** - HD/SD quality
+- ✅ **Instagram** - Reels & videos
+
+### Features:
 - ✅ Modern dark theme
 - ✅ Responsive (mobile friendly)
-- ✅ Auto-detect password dari URL
+- ✅ Tab navigation untuk setiap platform
+- ✅ Auto-detect password dari URL (TeraBox)
 - ✅ Download langsung atau direct link
-- ✅ File icon berdasarkan tipe
+- ✅ Quality selection (YouTube, Facebook)
+- ✅ Stats display (TikTok, Instagram)
+- ✅ Thumbnail preview
 - ✅ Loading indicator
 - ✅ Error handling
 
@@ -148,6 +161,19 @@ Cmd + Shift + R (Mac)
 
 # Atau clear cache
 ```
+
+---
+
+## 📺 Platform Endpoints
+
+| Platform | Endpoint | Response |
+|----------|----------|----------|
+| TeraBox | `/terabox?url=xxx&pwd=xxx` | Files list dengan download link |
+| YouTube Video | `/youtube/video?url=xxx` | Qualities: 144p-1080p |
+| YouTube Music | `/youtube/music?url=xxx` | Qualities: 128kbps, 320kbps |
+| TikTok | `/sosmed/tiktok?url=xxx` | HD, SD, WM play + audio |
+| Facebook | `/sosmed/facebook?url=xxx` | HD, SD video |
+| Instagram | `/sosmed/instagram?url=xxx` | Video URL |
 
 ---
 

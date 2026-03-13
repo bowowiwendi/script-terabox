@@ -1,11 +1,20 @@
-# TeraBox Downloader
+# Universal Media Downloader
 
-Download files from TeraBox using the Sonzaix API. Available in **CLI** and **Web** versions.
+Download from **TeraBox**, **YouTube**, **TikTok**, **Facebook** & **Instagram** using Sonzaix API. Available in **CLI** and **Web** versions.
 
 ## 🚀 Features
 
+| Platform | Video | Audio | Quality Options |
+|----------|-------|-------|-----------------|
+| **TeraBox** | ✅ | ✅ | Original |
+| **YouTube** | ✅ | ✅ | 144p - 1080p / 128-320kbps |
+| **TikTok** | ✅ | ✅ | HD/SD (No Watermark) |
+| **Facebook** | ✅ | ❌ | HD/SD |
+| **Instagram** | ✅ | ❌ | Original |
+
+### General Features
 - 🎯 CLI & Web interface
-- 🔐 Password-protected link support
+- 🔐 Password-protected link support (TeraBox)
 - 📊 Download progress indicator
 - 📥 Single or batch download
 - 🌐 Browser-based UI (static HTML)
