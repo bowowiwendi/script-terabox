@@ -1,0 +1,30 @@
+name: Deploy to Render
+
+on:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+    
+    - name: Test application
+      run: |
+        python -c "from app import app; print('App loaded successfully')"
+    
+    - name: Deploy notification
+      run: |
+        echo "✅ Build successful! Push to main branch will trigger deployment on Render."
+        echo "📌 Make sure to connect your GitHub repository to Render for auto-deployment."

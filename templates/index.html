@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TeraBox Downloader</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --success: #22c55e;
+            --error: #ef4444;
+            --warning: #f59e0b;
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border: #334155;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, #1e1b4b 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #6366f1, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .header .badge {
+            display: inline-block;
+            background: rgba(99, 102, 241, 0.2);
+            color: var(--primary);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin-top: 10px;
+        }
+
+        /* Card */
+        .card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-title i {
+            color: var(--primary);
+        }
+
+        /* Form */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 14px 18px;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        .form-control::placeholder {
+            color: var(--text-secondary);
+            opacity: 0.6;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #16a34a);
+            color: white;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--border);
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 0.9rem;
+        }
+
+        /* Results */
+        .results {
+            display: none;
+        }
+
+        .results.show {
+            display: block;
+        }
+
+        .file-info {
+            background: var(--bg-dark);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .file-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .info-item {
+            text-align: center;
+        }
+
+        .info-item .value {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .info-item .label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+
+        /* File List */
+        .file-list {
+            list-style: none;
+        }
+
+        .file-item {
+            background: var(--bg-dark);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+            border: 1px solid var(--border);
+            transition: all 0.3s;
+        }
+
+        .file-item:hover {
+            border-color: var(--primary);
+        }
+
+        .file-info-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .file-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .file-details {
+            flex: 1;
+        }
+
+        .file-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+            word-break: break-word;
+        }
+
+        .file-meta {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .file-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Progress */
+        .progress-container {
+            margin-top: 20px;
+            display: none;
+        }
+
+        .progress-container.show {
+            display: block;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: var(--bg-dark);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+            width: 0%;
+            transition: width 0.3s;
+            border-radius: 4px;
+        }
+
+        .progress-text {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        /* Alert */
+        .alert {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid var(--error);
+            color: #fca5a5;
+        }
+
+        .alert-success {
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid var(--success);
+            color: #86efac;
+        }
+
+        .alert-info {
+            background: rgba(99, 102, 241, 0.2);
+            border: 1px solid var(--primary);
+            color: #a5b4fc;
+        }
+
+        /* Spinner */
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .file-item {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .file-actions {
+                justify-content: stretch;
+            }
+
+            .file-actions .btn {
+                flex: 1;
+                justify-content: center;
+            }
+        }
+
+        /* Loading overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .loading-overlay.show {
+            display: flex;
+        }
+
+        .loading-content {
+            text-align: center;
+        }
+
+        .loading-content .spinner {
+            width: 50px;
+            height: 50px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <p id="loadingText">Processing...</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <header class="header">
+            <h1><i class="fas fa-cloud-download-alt"></i> TeraBox Downloader</h1>
+            <p>Download files from TeraBox with ease</p>
+            <span class="badge"><i class="fas fa-bolt"></i> Powered by Sonzaix API</span>
+        </header>
+
+        <div class="card">
+            <h2 class="card-title"><i class="fas fa-link"></i> Enter TeraBox URL</h2>
+            
+            <div id="alertContainer"></div>
+
+            <form id="downloadForm">
+                <div class="form-group">
+                    <label for="url">TeraBox URL</label>
+                    <input 
+                        type="text" 
+                        id="url" 
+                        class="form-control" 
+                        placeholder="https://www.terabox.app/indonesian/sharing/init?surl=xxx&pwd=xxx"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password (optional)</label>
+                    <input 
+                        type="text" 
+                        id="password" 
+                        class="form-control" 
+                        placeholder="Leave empty if URL contains &pwd= or no password"
+                    >
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="fetchBtn">
+                    <i class="fas fa-search"></i> Fetch Files
+                </button>
+            </form>
+        </div>
+
+        <div class="card results" id="resultsCard">
+            <h2 class="card-title"><i class="fas fa-folder-open"></i> Available Files</h2>
+            
+            <div class="file-info" id="fileInfo">
+                <div class="file-info-grid">
+                    <div class="info-item">
+                        <div class="value" id="totalFiles">0</div>
+                        <div class="label">Total Files</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="value" id="isPrivate">-</div>
+                        <div class="label">Private</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="value" id="source">TeraBox</div>
+                        <div class="label">Source</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="value" id="status">-</div>
+                        <div class="label">Status</div>
+                    </div>
+                </div>
+            </div>
+
+            <ul class="file-list" id="fileList"></ul>
+
+            <div class="progress-container" id="progressContainer">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-text" id="progressText">0%</div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p>API by <a href="https://t.me/November2k" target="_blank">Sonzai X シ</a></p>
+            <p style="margin-top: 10px;">For educational purposes only</p>
+        </footer>
+    </div>
+
+    <script>
+        const form = document.getElementById('downloadForm');
+        const resultsCard = document.getElementById('resultsCard');
+        const fileList = document.getElementById('fileList');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const loadingText = document.getElementById('loadingText');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+
+        function showLoading(text = 'Processing...') {
+            loadingText.textContent = text;
+            loadingOverlay.classList.add('show');
+        }
+
+        function hideLoading() {
+            loadingOverlay.classList.remove('show');
+        }
+
+        function showAlert(message, type = 'info') {
+            const container = document.getElementById('alertContainer');
+            const icons = {
+                error: 'fa-exclamation-circle',
+                success: 'fa-check-circle',
+                info: 'fa-info-circle'
+            };
+            
+            container.innerHTML = `
+                <div class="alert alert-${type}">
+                    <i class="fas ${icons[type]}"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+        }
+
+        function formatSize(bytes) {
+            const mb = bytes / (1024 * 1024);
+            if (mb >= 1000) {
+                return (mb / 1024).toFixed(2) + ' GB';
+            }
+            return mb.toFixed(2) + ' MB';
+        }
+
+        function getFileIcon(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            const icons = {
+                apk: 'fa-android',
+                zip: 'fa-file-archive',
+                rar: 'fa-file-archive',
+                '7z': 'fa-file-archive',
+                pdf: 'fa-file-pdf',
+                doc: 'fa-file-word',
+                docx: 'fa-file-word',
+                xls: 'fa-file-excel',
+                xlsx: 'fa-file-excel',
+                ppt: 'fa-file-powerpoint',
+                pptx: 'fa-file-powerpoint',
+                jpg: 'fa-file-image',
+                jpeg: 'fa-file-image',
+                png: 'fa-file-image',
+                gif: 'fa-file-image',
+                mp4: 'fa-file-video',
+                mkv: 'fa-file-video',
+                avi: 'fa-file-video',
+                mp3: 'fa-file-audio',
+                wav: 'fa-file-audio',
+                txt: 'fa-file-alt'
+            };
+            return icons[ext] || 'fa-file';
+        }
+
+        function displayResults(data) {
+            document.getElementById('totalFiles').textContent = data.total_files || 0;
+            document.getElementById('isPrivate').textContent = data.is_private ? 'Yes' : 'No';
+            document.getElementById('source').textContent = data.source || 'TeraBox';
+            document.getElementById('status').textContent = data.status || '-';
+
+            fileList.innerHTML = '';
+            
+            if (!data.files || data.files.length === 0) {
+                showAlert('No files found', 'error');
+                return;
+            }
+
+            data.files.forEach((file, index) => {
+                const li = document.createElement('li');
+                li.className = 'file-item';
+                li.innerHTML = `
+                    <div class="file-info-left">
+                        <div class="file-icon">
+                            <i class="fas ${getFileIcon(file.filename)}"></i>
+                        </div>
+                        <div class="file-details">
+                            <div class="file-name">${file.filename}</div>
+                            <div class="file-meta">${formatSize(parseInt(file.size))}</div>
+                        </div>
+                    </div>
+                    <div class="file-actions">
+                        <button class="btn btn-success btn-sm" onclick="downloadFile('${file.decoded_link}', '${file.filename.replace(/'/g, "\\'")}', ${index})">
+                            <i class="fas fa-download"></i> Download
+                        </button>
+                        <a href="${file.decoded_link}" target="_blank" class="btn btn-outline btn-sm">
+                            <i class="fas fa-external-link-alt"></i> Direct Link
+                        </a>
+                    </div>
+                `;
+                fileList.appendChild(li);
+            });
+
+            resultsCard.classList.add('show');
+        }
+
+        async function downloadFile(url, filename, index) {
+            showLoading(`Preparing download: ${filename}...`);
+            
+            try {
+                const response = await fetch('/api/download', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ url, filename })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Download failed');
+                }
+
+                const blob = await response.blob();
+                const downloadUrl = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = downloadUrl;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(downloadUrl);
+                document.body.removeChild(a);
+
+                showAlert(`Download started: ${filename}`, 'success');
+            } catch (error) {
+                showAlert(`Download failed: ${error.message}`, 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const url = document.getElementById('url').value.trim();
+            const password = document.getElementById('password').value.trim();
+
+            if (!url) {
+                showAlert('Please enter a URL', 'error');
+                return;
+            }
+
+            showLoading('Fetching file information...');
+
+            try {
+                const response = await fetch('/api/fetch', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ url, password })
+                });
+
+                const data = await response.json();
+
+                if (data.status !== 'success') {
+                    showAlert(data.message || 'Failed to fetch files', 'error');
+                    resultsCard.classList.remove('show');
+                    return;
+                }
+
+                showAlert('Files fetched successfully!', 'success');
+                displayResults(data);
+            } catch (error) {
+                showAlert(`Error: ${error.message}`, 'error');
+            } finally {
+                hideLoading();
+            }
+        });
+    </script>
+</body>
+</html>
