@@ -18,13 +18,27 @@ Download from **TeraBox**, **YouTube**, **TikTok**, **Facebook** & **Instagram**
 - 📊 Download progress indicator
 - 📥 Single or batch download
 - 🌐 Browser-based UI (static HTML)
-- ☁️ Deploy to GitHub Pages (FREE!)
+- ☁️ Deploy to **GitHub Pages**, **Vercel**, **Render** (FREE!)
 
 ---
 
-## 🌐 Web Version - GitHub Pages (No Server Needed!)
+## 🌐 Deployment Options
 
-### Deploy in 3 Steps:
+### Option 1: Vercel (Recommended) ⚡
+
+```bash
+# Install Vercel CLI
+npm install -g vercel
+
+# Deploy
+vercel --prod
+```
+
+**Docs:** [VERCEL_DEPLOY.md](VERCEL_DEPLOY.md)
+
+---
+
+### Option 2: GitHub Pages
 
 1. **Push ke GitHub**
    ```bash
@@ -37,21 +51,13 @@ Download from **TeraBox**, **YouTube**, **TikTok**, **Facebook** & **Instagram**
    ```
 
 2. **Aktifkan GitHub Pages**
-   - Buka repository di GitHub
-   - **Settings** → **Pages**
-   - Source: **GitHub Actions**
+   - Settings → Pages → Source: **GitHub Actions**
 
-3. **Done!** Akses di `https://<username>.github.io/<repo>/`
-
-### File: `index.html`
-- ✅ Pure HTML + CSS + JavaScript
-- ✅ No backend server
-- ✅ Gratis selamanya
-- ✅ Auto-deploy dengan GitHub Actions
+**Docs:** [GITHUB_PAGES_SETUP.md](GITHUB_PAGES_SETUP.md)
 
 ---
 
-## 💻 Web Version (Flask - Local/Cloud)
+### Option 3: Flask (Local/Cloud)
 
 ```bash
 pip install -r requirements.txt
@@ -59,6 +65,8 @@ python app.py
 ```
 
 Access at: `http://localhost:5000`
+
+**Docs:** [DEPLOYMENT.md](DEPLOYMENT.md)
 
 ---
 
